@@ -1,0 +1,244 @@
+body {
+  background: linear-gradient(to bottom, #f0f0f0, #d1d1d1);
+  background-image: url("../images/arabesque.png");
+  font-family: 'Bangers';
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.stick-image {
+  margin: 20px auto;
+  max-width: 400px;
+  border-radius: 100%;
+}
+
+h1 {
+  color: black;
+  font-family: 'Bangers', cursive;
+  font-size: 50px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+
+.word {
+  font-size: 36px;
+  margin: 20px 0;
+  letter-spacing: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.word span {
+  border: 3px dashed black;
+  background-color: lightgray;
+  margin: 0 8px;
+  padding: 0 8px;
+  display: inline-block;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.word span.correct-guess {
+  animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-30px);
+  }
+  60% {
+    transform: translateY(-15px);
+  }
+}
+
+
+.keyboard {
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+
+.keyboard button {
+  font-size: 25px;
+  padding: 10px 20px;
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-family: 'Bangers', cursive;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.keyboard button:hover {
+  background-color: gray;
+}
+
+
+p {
+  color: orange;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+
+.game-over-message {
+  font-size: 24px;
+  color: #e41f1b;
+  margin-top: 20px;
+}
+
+.play-again {
+  font-size: 20px;
+  padding: 10px 20px;
+  background-color: #e53935;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-family: 'Bangers', cursive;
+}
+
+.play-again:hover {
+  background-color: #c62828;
+}
+
+.blink-red {
+  animation: blink-red 0.1s linear infinite alternate;
+}
+
+@keyframes blink-red {
+  from {
+    color: orange;
+  }
+  to {
+    color: red;
+  }
+}
+
+.highlighted-word {
+  color: green;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.part-of-speech, .mistakes-paragraph {
+  color: blue;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.word-meaning, .correct-word {
+  max-width: 800px;
+  margin: 20px auto;
+  color: black;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* LoginForm.jsx */
+.login-form {
+  max-width: 300px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f8f8f8;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.logout-button{
+  margin-left: 10px;
+}
+
+.login-button,
+.register-button, 
+.logout-button,
+.leaderboard-button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-button:hover,
+.register-button:hover,
+.logout-button:hover,
+.leaderboard-button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+.leaderboard {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-top: 20px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+h2 {
+  color: #333;
+  font-size: 24px;
+}
+
+.user-rank {
+  font-weight: bold;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 16px;
+  color: #555;
+}
+
+li.user-entry {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.rank {
+  margin-right: 8px;
+  font-weight: bold;
+}
