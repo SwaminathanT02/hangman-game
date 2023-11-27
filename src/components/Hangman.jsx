@@ -1,3 +1,4 @@
+// --- IMPORTS ---
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import GameHeader from './GameHeader';
@@ -7,11 +8,13 @@ import GameOutcome from './GameOutcome';
 import Leaderboard from './Leaderboard';
 import LoginForm from './Auth/LoginForm';
 import LogoutButton from './Auth/LogoutButton';
+import { fetchWordFromServer, fetchWordMeaning, updateUserScore, getUserScore } from './Api';
 
-
-const serverURL = "http://localhost:5001";
+// --- CONSTANTS ---
+const serverURL = "";
 const totalTries = 6;
 
+// --- COMPONENTS ---
 const Hangman = () => {
   const [user, setUser] = useState(null);
   const [selectedWord, setSelectedWord] = useState('');
@@ -28,8 +31,7 @@ const Hangman = () => {
   const fetchWordAndMeaning = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${serverURL}/api/word`);
-      const wordFromServer = response.data.word.toUpperCase();
+      const wordFromServer = await fetchWordFromServer(serverURL);
       setSelectedWord(wordFromServer);
       setGuessedWord(Array(wordFromServer.length).fill('_'));
       setGuessedLetters(new Set());
@@ -37,15 +39,8 @@ const Hangman = () => {
       setWordMeanings(null);
       setMistakes(0);
       setGameOver(false);
-      
-      const meaningResponse = await axios.get(`${serverURL}/api/word/${wordFromServer}/meaning`);
-      const meanings = meaningResponse.data.meanings;
-      
-      if (meanings && meanings.length > 0) {
-        setWordMeanings(meanings);
-      } else {
-        console.log('Meaning not found for the word.');
-      }
+      const meanings = await fetchWordMeaning(serverURL, wordFromServer);
+      setWordMeanings(meanings || null);
     } catch (error) {
       console.error('Error fetching word or meaning:', error.message);
     } finally {
@@ -74,27 +69,21 @@ const Hangman = () => {
         try {
           if (user) {
             const newScore = Math.max((user.score || 0) - 2, 0);
-            await axios.post(`${serverURL}/api/leaderboard`, {
-              username: user.username,
-              score: newScore,
-            });
+            await updateUserScore(serverURL, user.username, newScore)
             setUser((prevUser) => ({ ...prevUser, score: newScore }));
           }
         } catch (error) {
           console.error('Error updating user score:', error.message);
         }
-
         if (mistakes + 1 === totalTries) {
           setGameOver(true);
         }
       } else {
         try {
           if (user && !guessedLetters.has(letter)) {
-            await axios.post(`${serverURL}/api/leaderboard`, {
-              username: user.username,
-              score: (user.score || 0) + 10,
-            });
-            setUser((prevUser) => ({ ...prevUser, score: (user.score || 0) + 10 }));
+            const newScore = (user.score || 0) + 10
+            await updateUserScore(serverURL, user.username, newScore)
+            setUser((prevUser) => ({ ...prevUser, score: newScore }));
             setGuessedLetters((prevGuessedLetters) => new Set(prevGuessedLetters).add(letter));
           }
         } catch (error) {
@@ -109,7 +98,6 @@ const Hangman = () => {
     }
   };
 
-  
   const blinkMistakesParagraph = () => {
     const mistakesParagraph = document.querySelector('.mistakes-paragraph');
     mistakesParagraph.classList.add('blink-red');
@@ -120,20 +108,19 @@ const Hangman = () => {
 
   const handleUserAuthentication = async (userData) => {
     try {
-      const response = await axios.get(`${serverURL}/api/leaderboard/${userData.username}`);
-      // Assuming the response.data contains the user's score
+      const userScore = await getUserScore(serverURL, userData.username)
       const userWithScore = {
         username: userData.username,
-        score: response.data.score || 0, // Default to 0 if the score is not available
+        score: userScore
       };
-  
       setUser(userWithScore);
     } catch (error) {
       console.error('Error fetching user information:', error.message);
     }
   };
 
-  const handleLogout = () => {
+
+  const handleLogout = async () => {
     setUser(null);
   };
 
@@ -141,7 +128,26 @@ const Hangman = () => {
     setShowLeaderboard(!showLeaderboard);
   };
 
+
   useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await axios.get(`${serverURL}/api/user/check-session`);
+        console.log(`checkSession Data: ${response.data.user}`);
+        console.log(`checkSession Google ID: ${response.data.user.google_id}`);
+        console.log(`checkSession Username: ${response.data.user.username}`);
+        if (response.data.user) {
+          handleUserAuthentication({username: response.data.user.google_id || response.data.user.username})
+        }
+      } catch (error) {
+        console.error('Error checking user session:', error.message);
+      } finally {
+        fetchWordAndMeaning();
+      }
+    };
+    if(!user){
+      checkSession();
+    }
     fetchWordAndMeaning();
   }, []);
 
@@ -171,8 +177,8 @@ const Hangman = () => {
                   <button className="leaderboard-button" onClick={handleLeaderboardButtonClick}>
                     {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
                   </button>
-                  <LogoutButton onLogout={handleLogout} />
-                  <Leaderboard user={user} isVisible={showLeaderboard} />
+                  <LogoutButton onLogout={handleLogout} serverURL={serverURL} />
+                  <Leaderboard user={user} isVisible={showLeaderboard} serverURL={serverURL} />
                 </div>
               ) : (
                 <>
@@ -184,15 +190,15 @@ const Hangman = () => {
                   <button className="leaderboard-button" onClick={handleLeaderboardButtonClick}>
                     {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
                   </button>
-                  <LogoutButton onLogout={handleLogout} />
-                  <Leaderboard user={user} isVisible={showLeaderboard} />
+                  <LogoutButton onLogout={handleLogout} serverURL={serverURL} />
+                  <Leaderboard user={user} isVisible={showLeaderboard} serverURL={serverURL} />
                 </>
               )}
             </>
           )}
         </>
       ) : (
-            <LoginForm onLogin={handleUserAuthentication} onRegister={handleUserAuthentication} />
+            <LoginForm onLogin={handleUserAuthentication} onRegister={handleUserAuthentication} serverURL={serverURL} />
           )}
     </div>
   );

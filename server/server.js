@@ -1,12 +1,15 @@
-// server.js
+// --- IMPORTS ---
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const pg = require('pg');
+const path = require('path');
+const passport = require('./passport-config');
 require('dotenv').config({ path: 'server/.env' });
 
+// --- CONSTANTS ---
 const app = express();
 const port = process.env.PORT || 5001;
 const wordApiServer = "https://random-word-api.herokuapp.com";
@@ -20,6 +23,8 @@ const pool = new pg.Pool({
   port: process.env.DB_PORT || 5432,
 });
 
+
+// --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
 app.use(
@@ -30,6 +35,12 @@ app.use(
   })
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.static(path.join(__dirname, '../build')));
+
+
+// --- ROUTE HANDLERS ---
 app.get('/api/word', async (req, res) => {
   try {
     const response = await axios.get(`${wordApiServer}/word?length=${Math.floor((Math.random()*8) + 5)}`);
@@ -44,7 +55,6 @@ app.get('/api/word', async (req, res) => {
 
 app.get('/api/word/:word/meaning', async (req, res) => {
   const { word } = req.params;
-
   try {
     const response = await axios.get(meaningApiServer + word.toLowerCase());
     const meanings = response.data[0]?.meanings;
@@ -59,7 +69,8 @@ app.get('/api/word/:word/meaning', async (req, res) => {
   }
 });
 
-// Register a new user
+
+// Register User
 app.post('/api/user/register', async (req, res) => {
   const { username, password } = req.body;
 
@@ -79,41 +90,35 @@ app.post('/api/user/register', async (req, res) => {
     const insertUserQuery = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
     const insertedUser = await pool.query(insertUserQuery, [username, hashedPassword]);
 
-    res.status(201).json({ id: insertedUser.rows[0].id, username: insertedUser.rows[0].username });
+    // Authenticate the user after registration
+    req.login(insertedUser.rows[0], (err) => {
+      if (err) {
+        console.error('Error logging in after registration:', err);
+        return res.status(500).json({ error: 'Error logging in after registration' });
+      }
+      res.redirect('/');
+    });
   } catch (error) {
     console.error('Error registering user:', error.message);
     res.status(500).json({ error: 'Error registering user' });
   }
 });
 
+
 // User login
-app.post('/api/user/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    // Check if the username exists
-    const userQuery = 'SELECT * FROM users WHERE username = $1';
-    const userResult = await pool.query(userQuery, [username]);
-
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Compare the provided password with the hashed password in the database
-    const isValidPassword = await bcrypt.compare(password, userResult.rows[0].password);
-
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Store the user ID in the session
-    req.session.userId = userResult.rows[0].id;
-
-    res.status(200).json({ message: 'Login successful', username: userResult.rows[0].username });
-  } catch (error) {
-    console.error('Error logging in:', error.message);
-    res.status(500).json({ error: 'Error logging in' });
+app.post(
+  '/api/user/login',
+  passport.authenticate('local'),
+  (req, res) => {
+    res.redirect('/');
   }
+);
+
+// User login
+app.post('/api/user/logout', (req, res) => {
+  req.logout(() => {
+  });
+  res.redirect("/")
 });
 
 // Fetch leaderboard
@@ -133,14 +138,24 @@ app.get('/api/leaderboard/:username', async (req, res) => {
   const { username } = req.params;
 
   try {
-    const userScoreQuery = 'SELECT score FROM leaderboard WHERE username = $1';
+    const userScoreQuery = 'SELECT score, google_name, username FROM leaderboard WHERE username = $1';
     const userScoreResult = await pool.query(userScoreQuery, [username]);
 
     if (userScoreResult.rows.length === 0) {
-      res.status(404).json({ error: 'User not found in the leaderboard' });
+      const userQuery = 'SELECT username FROM users WHERE google_id = $1';
+      const userResult = await pool.query(userQuery, [username]);
+
+      if (userResult.rows.length === 0) {
+        res.status(404).json({ error: 'User not found' });
+      } else {
+        const google_name = userResult.rows[0].username;
+        const createUserQuery = 'INSERT INTO leaderboard (username, score, google_name) VALUES ($1, $2, $3)';
+        await pool.query(createUserQuery, [username, 0, google_name]);
+        res.status(200).json({ username: username, score: 0 });
+      } 
     } else {
-      const userScore = userScoreResult.rows[0].score;
-      res.status(200).json({ username, score: userScore });
+      const { score, google_name, username } = userScoreResult.rows[0];
+      res.status(200).json({ username: username, score: score });
     }
   } catch (error) {
     console.error(`Error fetching ${username}'s score from leaderboard:`, error.message);
@@ -177,6 +192,38 @@ app.post('/api/leaderboard', async (req, res) => {
   } catch (error) {
     console.error('Error updating leaderboard:', error.message);
     res.status(500).json({ error: 'Error updating leaderboard' });
+  }
+});
+
+// Google OAuth 2.0
+app.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile'] })
+);
+
+// Google OAuth 2.0 - Callback
+app.get(
+  '/auth/google/hangman',
+  passport.authenticate('google', {
+    failureRedirect: '/'
+  }),
+  (req, res) => {
+    // Successful authentication
+    console.log(req.user)
+    res.redirect('/');
+  }
+);
+
+// Check User Session
+app.get('/api/user/check-session', (req, res) => {
+  console.log(req.isAuthenticated());
+  if (req.isAuthenticated()) {
+    // If the user is authenticated, send back user information
+    console.log(req.user);
+    res.status(200).json({ user: req.user });
+  } else {
+    // If the user is not authenticated, send an empty response
+    res.status(200).json({});
   }
 });
 

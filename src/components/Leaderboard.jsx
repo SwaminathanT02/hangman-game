@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Leaderboard = ({ user, isVisible }) => {
+const Leaderboard = ({ user, isVisible, serverURL }) => {
   const [userRank, setUserRank] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
 
@@ -9,9 +9,9 @@ const Leaderboard = ({ user, isVisible }) => {
     // Fetch leaderboard data and user rank from the server
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/leaderboard');
+        const response = await axios.get(`${serverURL}/api/leaderboard`);
         const leaderboard = response.data;
-
+        console.log(leaderboard);
         setLeaderboard(leaderboard);
 
         // Find and set the user's rank
@@ -36,7 +36,7 @@ const Leaderboard = ({ user, isVisible }) => {
       <ul>
         {leaderboard.map((entry, index) => (
           <li key={entry.id} className={entry.username === user.username ? 'user-entry' : ''}>
-            <span className="rank">{index + 1}.</span> {entry.username}: {entry.score}
+            <span className="rank">{index + 1}.</span> {entry.google_name || entry.username}: {entry.score}
           </li>
         ))}
       </ul>

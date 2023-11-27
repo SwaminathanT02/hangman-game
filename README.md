@@ -1,70 +1,91 @@
-# Getting Started with Create React App
+# HangMan Game
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An interactive Hangman game web app with customizable themes, authenticated user profiles, and persistent score tracking. This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Key Features
+- Smooth and responsive UI with colorful themes
+- Random word generation with part-of-speech filters
+- Persistent user profiles with password encryption
+- Secured login system with JWT authentication
+- Leaderboard to track top scorers
+- Lookup definitions easily during gameplay
+- Fully documented codebase and API references
 
-In the project directory, you can run:
+## Technologies Used
+- React.js
+- Node.js
+- Express.js
+- Passport.js
+- Google OAuth 2.0
+- PostgreSQL
+- Bcrypt encryption
+- CSS Animations
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Getting Started
+### Prerequisites
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js > v14 and npm
 
-### `npm test`
+### Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+# Clone the repository   
+git clone https://github.com/SwaminathanT02/hangman-game.git
 
-### `npm run build`
+# Navigate to client directory  
+cd hangman-game/client   
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Install dependencies  
+npm install
+  
+# Build front-end to produce static files
+npm run build
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Run the game - connect to http://localhost:5001
+nodemon server/server.js
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## API Reference
 
-### `npm run eject`
+Documentation for external APIs can be referred here for [Random Word Generator](https://random-word-api.herokuapp.com) and [Dictionary API](https://api.dictionaryapi.dev/api/v2/entries/en/).
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Some key endpoints in the backend server:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### Register New User:
+```http
+POST /api/auth/register
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+#### Login:
+```http
+POST /api/auth/login
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### Google Login (OAuth 2.0):
+```http
+POST /api/google
+```
 
-## Learn More
+#### Fetch Leaderboard:
+```http
+GET /api/leaderboard
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### Fetch Random Word:
+```http
+GET /api/word
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+#### Fetch meaning for current word:
+```http
+GET /api/word/:word/meaning
+```
 
-### Code Splitting
+## Contributing
+Pull requests are welcome! Please see the [contributing guidelines](CONTRIBUTING.md) for details.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## License
+This project is licensed under the MIT license. See [LICENSE](LICENSE) for more details.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Let me know if you need any other changes!

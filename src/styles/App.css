@@ -197,6 +197,19 @@ input {
   background-color: #45a049;
 }
 
+.google-button {
+  background-color: red;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.google-button:hover {
+  background-color: darkred;
+}
+
 .error-message {
   color: red;
   margin-top: 10px;
