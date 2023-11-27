@@ -6,7 +6,7 @@ An interactive Hangman game web app with customizable themes, authenticated user
 - Smooth and responsive UI with colorful themes
 - Random word generation with part-of-speech filters
 - Persistent user profiles with password encryption
-- Secured login system with JWT authentication
+- Secured login system with Passport.js and Google OAuth 2.0
 - Leaderboard to track top scorers
 - Lookup definitions easily during gameplay
 - Fully documented codebase and API references
@@ -15,11 +15,14 @@ An interactive Hangman game web app with customizable themes, authenticated user
 - React.js
 - Node.js
 - Express.js
+- Axios
+- REST API
 - Passport.js
 - Google OAuth 2.0
 - PostgreSQL
 - Bcrypt encryption
-- CSS Animations
+- HTML
+- CSS
 
 
 ## Getting Started
@@ -34,16 +37,12 @@ An interactive Hangman game web app with customizable themes, authenticated user
 git clone https://github.com/SwaminathanT02/hangman-game.git
 
 # Navigate to client directory  
-cd hangman-game/client   
+cd hangman-game   
 
-# Install dependencies  
-npm install
-  
-# Build front-end to produce static files
-npm run build
+# Run Startup Script
+source startup_script
 
-# Run the game - connect to http://localhost:5001
-nodemon server/server.js
+# Project hosted on http://localhost:5001
 ```
 
 ## API Reference
