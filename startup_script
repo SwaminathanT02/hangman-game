@@ -1,0 +1,22 @@
+#! /bin/bash
+
+# Startup Script to run the game
+if [ ! -d "./node_modules" ];then
+    npm i
+fi
+
+# Clean-up before build if required
+if [ -d "build" ]; then
+    rm -rf build
+fi
+if [ -d "build_folder" ]; then
+    rm -rf build_folder
+fi
+
+# Build the front-end react setup to generate static files
+npm run build
+mkdir build_folder
+cp -r build/. build_folder
+
+# Start the server
+nodemon server/server.js
