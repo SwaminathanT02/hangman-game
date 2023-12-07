@@ -39,6 +39,9 @@ const Hangman = () => {
       setWordMeanings(null);
       setMistakes(0);
       setGameOver(false);
+      if(user){
+        await updateDBScore();
+      }
       const meanings = await fetchWordMeaning(serverURL, wordFromServer);
       setWordMeanings(meanings || null);
     } catch (error) {
@@ -47,6 +50,19 @@ const Hangman = () => {
       setLoading(false);
     }
   };
+
+  const updateGuessedLettersAndScore = (newScore, letter) => {
+    setUser((prevUser) => ({ ...prevUser, score: newScore }));
+    setGuessedLetters((prevGuessedLetters) => new Set(prevGuessedLetters).add(letter));
+  }
+
+  const updateDBScore = async () => {
+    try {
+      await updateUserScore(serverURL, user.username, user.score)
+    } catch (error) {
+      console.error('Error updating user score:', error.message);
+    }
+  }
 
   const handleGuess = async (letter) => {
     if (!gameOver) {
@@ -62,38 +78,22 @@ const Hangman = () => {
       }
 
       if (!correctGuess) {
-        setMistakes((prevMistakes) => prevMistakes + 1);
-        blinkMistakesParagraph();
-
-        // Update the user's score for incorrect guess
-        try {
-          if (user) {
-            const newScore = Math.max((user.score || 0) - 2, 0);
-            await updateUserScore(serverURL, user.username, newScore)
-            setUser((prevUser) => ({ ...prevUser, score: newScore }));
-          }
-        } catch (error) {
-          console.error('Error updating user score:', error.message);
+        if(user && !guessedLetters.has(letter)){
+          setMistakes((prevMistakes) => prevMistakes + 1);
+          blinkMistakesParagraph();
+          updateGuessedLettersAndScore(Math.max((user.score || 0) - 1, 0), letter);
         }
         if (mistakes + 1 === totalTries) {
           setGameOver(true);
         }
       } else {
-        try {
-          if (user && !guessedLetters.has(letter)) {
-            const newScore = (user.score || 0) + 10
-            await updateUserScore(serverURL, user.username, newScore)
-            setUser((prevUser) => ({ ...prevUser, score: newScore }));
-            setGuessedLetters((prevGuessedLetters) => new Set(prevGuessedLetters).add(letter));
-          }
-        } catch (error) {
-          console.error('Error updating user score:', error.message);
+        if (user && !guessedLetters.has(letter)) {
+          updateGuessedLettersAndScore((user.score || 0) + 2, letter);
         }
-      }
-
-      setGuessedWord(updatedGuessedWord);
-      if (updatedGuessedWord.join('') === selectedWord) {
-        setGameOver(true);
+        setGuessedWord(updatedGuessedWord);
+        if (updatedGuessedWord.join('') === selectedWord) {
+          setGameOver(true);
+        }
       }
     }
   };
@@ -119,8 +119,8 @@ const Hangman = () => {
     }
   };
 
-
   const handleLogout = async () => {
+    await updateDBScore();
     setUser(null);
   };
 
@@ -128,27 +128,24 @@ const Hangman = () => {
     setShowLeaderboard(!showLeaderboard);
   };
 
-
   useEffect(() => {
     const checkSession = async () => {
       try {
         const response = await axios.get(`${serverURL}/api/user/check-session`);
-        console.log(`checkSession Data: ${response.data.user}`);
-        console.log(`checkSession Google ID: ${response.data.user.google_id}`);
-        console.log(`checkSession Username: ${response.data.user.username}`);
         if (response.data.user) {
           handleUserAuthentication({username: response.data.user.google_id || response.data.user.username})
+          fetchWordAndMeaning();
         }
       } catch (error) {
         console.error('Error checking user session:', error.message);
-      } finally {
-        fetchWordAndMeaning();
       }
     };
     if(!user){
       checkSession();
     }
-    fetchWordAndMeaning();
+    if(user){
+      fetchWordAndMeaning();
+    }
   }, []);
 
   return (
@@ -186,7 +183,7 @@ const Hangman = () => {
                   <p>YOUR TOTAL SCORE: {user.score}</p>
                   <p className='mistakes-paragraph'>REMAINING TRIES: {totalTries - mistakes}</p>
                   <WordDisplay guessedWord={guessedWord} correctGuessIndexes={correctGuessIndexes} />
-                  <Keyboard handleGuess={handleGuess} gameOver={gameOver} />
+                  <Keyboard handleGuess={handleGuess} gameOver={gameOver} guessedLetters={guessedLetters} />
                   <button className="leaderboard-button" onClick={handleLeaderboardButtonClick}>
                     {showLeaderboard ? 'Hide Leaderboard' : 'Show Leaderboard'}
                   </button>

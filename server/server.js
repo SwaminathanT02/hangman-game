@@ -209,17 +209,14 @@ app.get(
   }),
   (req, res) => {
     // Successful authentication
-    console.log(req.user)
     res.redirect('/');
   }
 );
 
 // Check User Session
 app.get('/api/user/check-session', (req, res) => {
-  console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
     // If the user is authenticated, send back user information
-    console.log(req.user);
     res.status(200).json({ user: req.user });
   } else {
     // If the user is not authenticated, send an empty response

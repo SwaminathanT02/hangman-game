@@ -32,14 +32,25 @@ const Leaderboard = ({ user, isVisible, serverURL }) => {
     {isVisible &&
       <>
       <h2>LEADERBOARD</h2>
-      {userRank && <p className="user-rank">Your Rank: {userRank}</p>}
-      <ul>
-        {leaderboard.map((entry, index) => (
-          <li key={entry.id} className={entry.username === user.username ? 'user-entry' : ''}>
-            <span className="rank">{index + 1}.</span> {entry.google_name || entry.username}: {entry.score}
-          </li>
-        ))}
-      </ul>
+        {userRank && <p className="user-rank">Your Rank: {userRank}</p>}
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leaderboard.map((entry, index) => (
+              <tr key={entry.id} className={entry.username === user.username ? 'user-entry' : ''}>
+                <td>{index + 1}</td>
+                <td>{entry.google_name || entry.username}</td>
+                <td>{entry.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
     </>
     }
     </div>

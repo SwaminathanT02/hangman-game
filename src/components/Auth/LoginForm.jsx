@@ -58,6 +58,7 @@ const LoginForm = ({ onLogin, onRegister, serverURL }) => {
   };
 
   return (
+    <>
     <form className="login-form">
       <label>
         Username:
@@ -83,6 +84,19 @@ const LoginForm = ({ onLogin, onRegister, serverURL }) => {
 
       {loginError && <p className="error-message">{loginError}</p>}
     </form>
+    <div className="instructions">
+      <p>
+        Welcome to the Hangman game! Follow these instructions to play:
+      </p>
+      <ol>
+        <li>Guess the hidden word by selecting letters.</li>
+        <li>Use the keyboard buttons to make your guesses.</li>
+        <li>You can't guess the same letter twice.</li>
+        <li>For each incorrect guess, a part of the hangman is drawn.</li>
+        <li>Try to guess the word before the hangman is fully drawn!</li>
+      </ol>
+    </div>
+    </>
   );
 };
 

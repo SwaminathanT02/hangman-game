@@ -6,12 +6,12 @@ if [ ! -d "./node_modules" ];then
 fi
 
 # Clean-up before build if required
-if [ -d "build" ]; then
-    rm -rf build
-fi
-if [ -d "build_folder" ]; then
-    rm -rf build_folder
-fi
+build_folders=$(find . -maxdepth 1 -type d -regex "./build.*")
+
+echo "$build_folders" | while IFS= read -r folder; do
+    echo "Removing Old Build Directory $folder"
+    rm -rf "$folder"
+done
 
 # Build the front-end react setup to generate static files
 npm run build

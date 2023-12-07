@@ -55,6 +55,20 @@ h1 {
   }
 }
 
+.instructions {
+  max-width: 600px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+.instructions p {
+  color: blue;
+}
 
 .keyboard {
   max-width: 600px;
@@ -84,6 +98,9 @@ h1 {
   background-color: gray;
 }
 
+.keyboard button.guessed {
+  background-color: gray;
+}
 
 p {
   color: orange;
@@ -221,9 +238,30 @@ input {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  margin-top: 20px;
   font-family: 'Courier New', Courier, monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
 }
+
+table {
+  width: 50%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
 
 h2 {
   color: #333;
